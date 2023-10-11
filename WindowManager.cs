@@ -8,7 +8,23 @@ using System.Text;
 
 //Research:
 
+//http://www.pinvoke.net/index.aspx
+//https://stackoverflow.com/questions/1978077/c-sharp-set-window-behind-desktop-icons
 //https://fernandomachadopirizen.wordpress.com/2010/08/09/give-me-a-handle-and-i-will-move-the-earth/
+//https://stackoverflow.com/questions/7542669/issue-using-show-desktop-with-setparent-in-wpf
+//https://www.codeproject.com/Articles/856020/Draw-Behind-Desktop-Icons-in-Windows-plus
+//https://stackoverflow.com/questions/115868/how-do-i-get-the-title-of-the-current-active-window-using-c
+//https://stackoverflow.com/questions/54481799/getting-the-list-view-control-handle-from-an-ishellview-instance
+//https://dynamicwallpaper.readthedocs.io/en/docs/dev/make-wallpaper.html
+
+
+#region Closing Created workerW
+//Essentially, instead of doing this clear the desktop window instead as shown here:  https://stackoverflow.com/a/50804645
+//https://learn.microsoft.com/en-us/dotnet/core/extensions/workers?pivots=dotnet-7-0
+//https://learn.microsoft.com/en-us/windows/win32/winmsg/wm-close?redirectedfrom=MSDN
+//https://stackoverflow.com/questions/1129204/how-to-use-wm-close-in-c
+//https://stackoverflow.com/questions/53109281/what-is-the-windows-workerw-windows-and-what-creates-them
+#endregion
 public partial class WindowManager : Node
 {
 
@@ -19,18 +35,9 @@ public partial class WindowManager : Node
 	public override void _Ready()
 	{
 		IntPtr hWnd = NativeMethods.GetActiveWindow();
-		/*            IntPtr desktophWnd = FindShellWindow();//NativeMethods.FindWindow("Progman", "Program Manager");
 
-					if (hWnd == IntPtr.Zero)
-					{
-						Debug.WriteLine("NOTWORKING");
-					}
-
-					IntPtr newFoundWindow = NativeMethods.FindWindowEx(desktophWnd, IntPtr.Zero, "SysListView32", null);
-
-					Debug.WriteLine(GetWindowTitle(desktophWnd));
-					Debug.WriteLine(GetWindowTitle(newFoundWindow));*/
-
+		//I did not come up with this, I learned it here, PLEASE SEE LISCENSE: https://www.codeproject.com/Articles/856020/Draw-Behind-Desktop-Icons-in-Windows-plus, https://www.codeproject.com/info/cpol10.aspx
+		#region Getting Desktop and creating custom workerW
 
 		IntPtr result = IntPtr.Zero;
 
@@ -69,50 +76,11 @@ public partial class WindowManager : Node
 			return 1;
 		}), IntPtr.Zero);
 
-/*        IntPtr dc = NativeMethods.GetDCEx(workerW, IntPtr.Zero, (NativeMethods.DeviceContextValues)0x403);
-		if (dc != IntPtr.Zero)
-		{
-			// Create a Graphics instance from the Device Context
-			using (Graphics g = Graphics.FromHdc(dc))
-			{
-
-				// Use the Graphics instance to draw a white rectangle in the upper 
-				// left corner. In case you have more than one monitor think of the 
-				// drawing area as a rectangle that spans across all monitors, and 
-				// the 0,0 coordinate being in the upper left corner.
-				g.FillRectangle(new SolidBrush(Color.Blue), 0, 0, 500, 500);
-
-			}
-			// make sure to release the device context after use.
-			NativeMethods.ReleaseDC(workerW, dc);
-		}*/
-
-/*        // Add a randomly moving button to the form
-		Button button = new Button() { Text = "Catch Me" };
-		this.Controls.Add(button);
-		Random rnd = new Random();
-		System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
-		timer.Interval = 100;
-		timer.Tick += new EventHandler((sender, eventArgs) =>
-		{
-			button.Left = rnd.Next(0, this.Width - button.Width);
-			button.Top = rnd.Next(0, this.Height - button.Height);
-		});
-		timer.Start();*/
-
-		// This line makes the form a child of the WorkerW window, 
-		// thus putting it behind the desktop icons and out of reach 
-		// for any user input. The form will just be rendered, no 
-		// keyboard or mouse input will reach it. You would have to use 
-		// WH_KEYBOARD_LL and WH_MOUSE_LL hooks to capture mouse and 
-		// keyboard input and redirect it to the windows form manually, 
-		// but that's another story, to be told at a later time.
-		//NativeMethods.SetParent(this.Handle, workerW);
-
 		NativeMethods.SetParent(hWnd, workerW);
 
-		//clearDesktop();
-		//NativeMethods.SendMessage(workerW, NativeMethods.WM_CLOSE, 0, 0); //should close the workerW window we created.
+		#endregion
+
+		//clearDesktop(); //If you want to see the clearDesktop() function working or don't want to log out to repaint your background uncomment this.
 	}
 
 
@@ -120,25 +88,22 @@ public partial class WindowManager : Node
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-/*		IntPtr hWnd = NativeMethods.GetActiveWindow();
 
-		if (hWnd != IntPtr.Zero)
-		{
-			SetWindowPos(hWnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-		}*/
 	}
 
 	public override void _Notification(int what)
 	{
 
-		if (what == NotificationWMCloseRequest)
-		{
+		if (what == NotificationWMCloseRequest) //an attempt at following the docs, I think if I was using the x button to close the window this would work
+		{										//but it doesn't because we use the exit debug button in Godot to exit it.
 			clearDesktop();
 			GetTree().Quit(); // default behavior
 		}
 	}
 
 	#region Clear Desktop Code
+	//Didn't come up with this, found it here: https://stackoverflow.com/a/50804645
+
 
 	public static void clearDesktop()
 	{
@@ -166,6 +131,10 @@ public partial class WindowManager : Node
 	}
 
 	#endregion
+
+
+
+	//Ignore the stuff below here, I'm going to refactor it so it works with my new system, the old one lies below. Much cleaner than that.
 
 	/*	/// <summary>
 		/// Toggles desktop icons visibility by sending a low level command to desktop window in the same way as the popup menu "Show desktop  

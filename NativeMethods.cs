@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using DWORD = System.UInt32;
 
+//Just a seperate class to store all the imported pinvoke methods, some of which aren't used anymore. It's just better for readability.
 public partial class NativeMethods : GodotObject
 {
     [DllImport("user32.dll")]

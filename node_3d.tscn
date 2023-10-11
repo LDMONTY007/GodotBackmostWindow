@@ -1,0 +1,95 @@
+[gd_scene load_steps=13 format=3 uid="uid://dpgb50uguldli"]
+
+[ext_resource type="Script" path="res://WindowManager.cs" id="1_tr8ld"]
+[ext_resource type="Shader" path="res://node_3d.gdshader" id="1_yjhr7"]
+[ext_resource type="Animation" uid="uid://bhuondqalivlf" path="res://LoopingMovement.res" id="3_4cji0"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ayono"]
+shader = ExtResource("1_yjhr7")
+
+[sub_resource type="Sky" id="Sky_km7es"]
+sky_material = SubResource("ShaderMaterial_ayono")
+
+[sub_resource type="Environment" id="Environment_i3q4f"]
+background_mode = 1
+background_color = Color(0.945098, 0.945098, 0.945098, 1)
+sky = SubResource("Sky_km7es")
+sky_custom_fov = 11.3
+
+[sub_resource type="BoxMesh" id="BoxMesh_4oyh5"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_aw1r3"]
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_og7i2"]
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="QuadMesh" id="QuadMesh_urhyo"]
+
+[sub_resource type="Animation" id="Animation_0ycqq"]
+length = 0.001
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("MeshInstance3D:position:x")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/1/type = "bezier"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("MeshInstance3D:position:y")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/2/type = "bezier"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("MeshInstance3D:position:z")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(-16.7218, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_qxq1e"]
+_data = {
+"LoopingMovement": ExtResource("3_4cji0"),
+"RESET": SubResource("Animation_0ycqq")
+}
+
+[node name="Node3D" type="Node3D"]
+script = ExtResource("1_tr8ld")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+environment = SubResource("Environment_i3q4f")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -16.7218)
+mesh = SubResource("BoxMesh_4oyh5")
+surface_material_override/0 = SubResource("StandardMaterial3D_aw1r3")
+
+[node name="CPUParticles3D" type="CPUParticles3D" parent="MeshInstance3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.965003)
+material_override = SubResource("StandardMaterial3D_og7i2")
+mesh = SubResource("QuadMesh_urhyo")
+emission_shape = 1
+emission_sphere_radius = 1.0
+gravity = Vector3(0, -0.915, 0)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="MeshInstance3D"]
+process_mode = 3
+root_node = NodePath("../..")
+libraries = {
+"": SubResource("AnimationLibrary_qxq1e")
+}
